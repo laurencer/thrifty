@@ -24,7 +24,7 @@ object build extends Build {
       standardSettings
         ++ uniform.project("thrifty", "com.rouesnel.thrifty")
         ++ Seq[Sett](
-          crossScalaVersions := Seq("2.11.0", "2.10.4")
+          crossScalaVersions := Seq("2.11.7", "2.10.6")
         , scalacOptions := {
           val version = scalaVersion.value
           val options = scalacOptions.value
