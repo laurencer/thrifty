@@ -1,6 +1,18 @@
 language: scala
 jdk: oraclejdk7
 sudo: false
-scala:
-   - 2.10.6
-   - 2.11.7
+script:
+   - sbt "+ test"
+env:
+  global:
+    secure: mOWJNHbCUk+UEx6q00J+butuF5Y5JbRFy0S/cPMs/Gj6vC+g1QJP1V9YxAIxc+pM9AAHRl1r79tBawKvT7peKo6hXoNQYDgkrckH6m5qPwRItxV+QnOC/K4t+iksPP6PzsDLo9xG+QBjTLZX3H2AslE09/egGS9KyEcAwcNj2pWuHRDse9IUBig6keoShvVzLDQ1tJGcH+/KiwIPBaJaTMhJqWaVyGqleysDPWjogCE7QiGKaJcRCsv9qOJuTUTUkZhh6m5kmO2Z9sLNZQX+HqaBCqXcEmSGzjld8q+exV+s2Dl0o9gLRE4slzjgFzfrebtUretEfhCLJ43/wh9Yy6fhfXxScQCdejrVCZumcFKvE6qfbtqmkeGZfNvZzQebNNpLDzNPlAlsW4kZHd5kPjInsYne4lKs/wAcKLJPtbuNBc/Q6ledRrWkiVoSVp+522An2Vn1xr448YeDhvcmKFgrf7Wv/Tx8j/lKHjTZI6qqEhKaYAA8385dDupkG7HUvQkDKBR134Jv/EErpXSJFBbhCpF8k9Qaz+7h8QrlsDdK39CElj2iezyws1vCKEZRpRCOY11AVTZK3T8t1GJpvou//D2qmoq3plexgwAiB1+BCHxPDXM0pTAJFdXoyRAhsjXxDyIObIbVsH+78A/Eb9KyjzbX4ylCzHU+n0UI7zo=
+before_install:
+- openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg
+  -d
+- openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in pubring.gpg.enc -out local.pubring.gpg
+  -d
+- openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in credentials.sbt.enc -out
+  local.credentials.sbt -d
+after_success:
+- '[ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ] && /bin/bash
+  sbt "+ publishToSonatype"'

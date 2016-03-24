@@ -1,5 +1,8 @@
-import sbt._
-import Keys._
+import sbt._, Keys._
+
+import com.typesafe.sbt.pgp.PgpKeys._
+
+import xerial.sbt.Sonatype.SonatypeCommand._
 
 import au.com.cba.omnia.uniform.core.standard.StandardProjectPlugin._
 import au.com.cba.omnia.uniform.core.version.UniqueVersionPlugin._
@@ -9,12 +12,22 @@ import au.com.cba.omnia.uniform.assembly.UniformAssemblyPlugin._
 object build extends Build {
   type Sett = Def.Setting[_]
 
+  // This is needed because otherwise we'll create two Sonatype staging repositories
+  // and then we won't know which to release. This command ensures that we can
+  // do a cross-build (i.e. sbt + publishToSonatype) which does all the operations
+  // in the right order (e.g. publish + release for each cross-build separately).
+  lazy val publishToSonatype = Command.command("publishToSonatype") { state =>
+    val Some((updatedState, _)) = Project.runTask(publishSigned, state)
+    Command.process("sonatypeRelease", updatedState)
+  }
+
   lazy val standardSettings: Seq[Sett] =
     Defaults.coreDefaultSettings ++
     uniformDependencySettings ++
     strictDependencySettings ++
     Seq(
       updateOptions := updateOptions.value.withCachedResolution(true)
+    , commands += publishToSonatype
     )
 
   lazy val thrifty = Project(
@@ -24,7 +37,8 @@ object build extends Build {
       standardSettings
         ++ uniform.project("thrifty", "com.rouesnel.thrifty")
         ++ Seq[Sett](
-          crossScalaVersions := Seq("2.11.7", "2.10.6")
+          organization := "com.rouesnel"
+        , crossScalaVersions := Seq("2.11.7", "2.10.6")
         , scalacOptions := {
           val version = scalaVersion.value
           val options = scalacOptions.value
