@@ -5,9 +5,7 @@ import com.typesafe.sbt.pgp.PgpKeys._
 import xerial.sbt.Sonatype.SonatypeCommand._
 
 import au.com.cba.omnia.uniform.core.standard.StandardProjectPlugin._
-import au.com.cba.omnia.uniform.core.version.UniqueVersionPlugin._
 import au.com.cba.omnia.uniform.dependency.UniformDependencyPlugin._
-import au.com.cba.omnia.uniform.assembly.UniformAssemblyPlugin._
 
 object build extends Build {
   type Sett = Def.Setting[_]
